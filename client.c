@@ -72,7 +72,14 @@ int main(int argc, char *argv[]) {
 
     SDL_bool running = SDL_TRUE;
     int counter = 0;
+    int last_t = SDL_GetTicks()-100;
+    int msec = 1;
     while (running) {
+	if (counter % 100 == 0 && msec > 0) {
+	  printf("FPS: %d\n", ((int) (100000.0/msec)));
+	  msec = SDL_GetTicks() - last_t;
+	  last_t = SDL_GetTicks();
+	}
 	SDL_Delay(10);
 	counter = counter % 100;
 	counter += 1;
