@@ -28,5 +28,23 @@ TODO:
 * serverside: validate that a unit is owned by player before processing command to move it
 * clientside: only select and highlight units you own
 
+* Add main menu
+* Add lobby to eventually host game configurations
+* Add font
+* Add UI tool bar
+* Add Unit description
+* Add minimap
+
+* Add resources 
+* Add gathering
+* Add buildings
+* Allow unit purchases
+* Allow unit upgrades
+* Add unit types
+* Add unit maintenance costs
+* Add roads
+* Add supply lines which reduce maintenance cost
+
 Day 1: Simple socket server + client scaffolding (only supporting text), drew window to screen, abstracted out entities, entities path to click, main game loop, FPS calculation
+
 Day 2:
