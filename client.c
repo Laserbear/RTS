@@ -65,8 +65,6 @@ int main(int argc, char *argv[]) {
     SDL_RenderClear(renderer);
     #define NUM_ENTITIES 5000 
     static Entity entities[NUM_ENTITIES];
-    static Entity selectedEntities[NUM_ENTITIES];
-
 
     for(int i = 0; i < 5; i++) {
 	generate_random_entity(&entities[i]);
@@ -92,7 +90,6 @@ int main(int argc, char *argv[]) {
     }
 
     Entity* getSelected(SelectionBox* selection) {
-	//TODO: find intersections and select pugs
         for (int i = 0; i < NUM_ENTITIES; i++) {
 	   if (!entities[i].isActive) {
 	      continue;
@@ -103,14 +100,12 @@ int main(int argc, char *argv[]) {
            if (SDL_IntersectRect(&entityRect, &(selection->box), &result)) {
                 // This entity is within the selection box
                 // Mark as selected, handle as needed
-               selectedEntities[i] = entities[i];
 	       entities[i].isSelected = true;
            } else {
 	       entities[i].isSelected = false;
-	       selectedEntities[i].isActive = false;
 	   }
         }
-	return selectedEntities;
+	return entities;
     }
 
     SelectionBox selection;
@@ -120,12 +115,12 @@ int main(int argc, char *argv[]) {
                     if (event.button.button == SDL_BUTTON_LEFT) {
                         //queue target for curently selected units
 			for(int i = 0; i < NUM_ENTITIES; i++) {
-			    if (!selectedEntities[i].isActive) {
+			    if (!entities[i].isActive || !entities[i].isSelected) {
 			        continue;
 			    }
 			    entities[i].target.x = event.button.x;
 			    entities[i].target.y = event.button.y;
-			    selectedEntities[i].isActive = false;
+			    entities[i].isSelected = false;
 			}
                         selection->selecting = true;
                         selection->box.x = event.button.x;
@@ -147,7 +142,11 @@ int main(int argc, char *argv[]) {
                             selection->box.h = -selection->box.h;
                         }
                         // Find collisions to select units
-			getSelected(selection); 
+			getSelected(selection);
+			selection->box.x = 0;
+			selection->box.y = 0;
+			selection->box.w = 0;
+			selection->box.h = 0;
                    }
                    break;
                 case SDL_MOUSEMOTION:
@@ -197,7 +196,7 @@ int main(int argc, char *argv[]) {
             render_entity(renderer, &entities[i]);
         }
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); 
-        SDL_RenderFillRect(renderer, &selection.box);
+        SDL_RenderDrawRect(renderer, &selection.box);
 
         // Update the screen
         SDL_RenderPresent(renderer);
