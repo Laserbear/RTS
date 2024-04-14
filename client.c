@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include "Entity.h"
+#include <SDL2/SDL_image.h> 
 
 static void client(int port) {
     //create socket
@@ -77,17 +78,6 @@ int main(int argc, char *argv[]) {
        bool selecting;
        SDL_Rect box;  // x, y, w, h
     } SelectionBox;
-     
-    Entity* initializeEntityArray() {
-	Entity* generated_entities = malloc(NUM_ENTITIES * sizeof(Entity));
-        if (!generated_entities) {
-            return NULL;  // Always check if malloc succeeded
-        }
-	for(int i = 0; i < NUM_ENTITIES; i++) {
-	   generate_random_entity(&generated_entities[i]);
-	}
-	return generated_entities;
-    }
 
     Entity* getSelected(SelectionBox* selection) {
         for (int i = 0; i < NUM_ENTITIES; i++) {
@@ -158,7 +148,6 @@ int main(int argc, char *argv[]) {
             } 
     }
     
-
     int counter = 0;
     int last_t = SDL_GetTicks()-100;
     int msec = 1;

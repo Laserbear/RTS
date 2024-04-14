@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS= -Wall $(shell sdl2-config --cflags)
-LIBS=$(shell sdl2-config --libs) -lm
+LIBS=$(shell sdl2-config --libs) -lSDL2_image -lm
 
 # Target executable name
 TARGET=client

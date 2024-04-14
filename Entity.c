@@ -36,8 +36,14 @@ void render_entity(SDL_Renderer *renderer, Entity *entity) {
     } else {
         SDL_SetRenderDrawColor(renderer, entity->color.r, entity->color.g, entity->color.b, entity->color.a);
     }
+    SDL_Surface* loadedSurface = IMG_Load("sprites/pug.jpg");
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+    SDL_FreeSurface(loadedSurface);
     SDL_Rect rect = {(int)round(entity->x), (int)round(entity->y), entity->w, entity->h};
-    SDL_RenderFillRect(renderer, &rect);
+    SDL_RenderCopy(renderer, texture, NULL, &rect);
+    //SDL_RenderFillRect(renderer, &rect);
+
+
 }
 
 void generate_random_entity(Entity *entity) {

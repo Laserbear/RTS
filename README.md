@@ -47,4 +47,4 @@ TODO:
 
 Day 1: Simple socket server + client scaffolding (only supporting text), drew window to screen, abstracted out entities, entities path to click, main game loop, FPS calculation
 
-Day 2:
+Day 2: Allowed selecting and highlighting units by drawing rectangle and then controlling those units, statically allocated memory for 5000 units, update entity positions 1/100th as fast as graphics refreshes 
