@@ -41,7 +41,7 @@ void render_entity(SDL_Renderer *renderer, Entity *entity) {
     SDL_FreeSurface(loadedSurface);
     SDL_Rect rect = {(int)round(entity->x), (int)round(entity->y), entity->w, entity->h};
     SDL_RenderCopy(renderer, texture, NULL, &rect);
-    //SDL_RenderFillRect(renderer, &rect);
+    SDL_RenderDrawRect(renderer, &rect);
 
 
 }
