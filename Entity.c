@@ -1,6 +1,9 @@
 #include "Entity.h"
 
 void move_entity(Entity *entity) {
+    if (!entity->isActive) {
+        return;
+    }
     float dx = entity->target.x - entity->x;
     float dy = entity->target.y - entity->y;
     float distance = sqrt(dx * dx + dy * dy);
@@ -25,6 +28,9 @@ void move_entity(Entity *entity) {
 void render_entity(SDL_Renderer *renderer, Entity *entity) {
     //Draw our boy
     //Figure out how to put sprites in here
+    if (!entity->isActive) {
+	return;
+    }
     if (entity->isSelected) {
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green for selected
     } else {
@@ -43,5 +49,7 @@ void generate_random_entity(Entity *entity) {
         entity->target.y = entity->y;
         entity->color = (SDL_Color){rand()%256 + 1, rand()%256 + 1, rand()%256 + 1, 255};
         entity->speed = 1;
+	entity->isActive = false;
+	entity->isSelected = false;
 }
 

@@ -63,41 +63,126 @@ int main(int argc, char *argv[]) {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
     SDL_RenderClear(renderer);
-    
-    Entity pugs[5];
+    #define NUM_ENTITIES 5000 
+    static Entity entities[NUM_ENTITIES];
+    static Entity selectedEntities[NUM_ENTITIES];
+
 
     for(int i = 0; i < 5; i++) {
-	generate_random_entity(&pugs[i]);
+	generate_random_entity(&entities[i]);
+	entities[i].isActive = true;
     }
 
     SDL_bool running = SDL_TRUE;
+
+    typedef struct {
+       bool selecting;
+       SDL_Rect box;  // x, y, w, h
+    } SelectionBox;
+     
+    Entity* initializeEntityArray() {
+	Entity* generated_entities = malloc(NUM_ENTITIES * sizeof(Entity));
+        if (!generated_entities) {
+            return NULL;  // Always check if malloc succeeded
+        }
+	for(int i = 0; i < NUM_ENTITIES; i++) {
+	   generate_random_entity(&generated_entities[i]);
+	}
+	return generated_entities;
+    }
+
+    Entity* getSelected(SelectionBox* selection) {
+	//TODO: find intersections and select pugs
+        for (int i = 0; i < NUM_ENTITIES; i++) {
+	   if (!entities[i].isActive) {
+	      continue;
+	   }
+           SDL_Rect entityRect = {entities[i].x, entities[i].y, entities[i].w, entities[i].h};
+           SDL_Rect result; // To store the result of intersection, if needed
+           // Directly using SDL_IntersectRect to check for intersection
+           if (SDL_IntersectRect(&entityRect, &(selection->box), &result)) {
+                // This entity is within the selection box
+                // Mark as selected, handle as needed
+               selectedEntities[i] = entities[i];
+	       entities[i].isSelected = true;
+           } else {
+	       entities[i].isSelected = false;
+	       selectedEntities[i].isActive = false;
+	   }
+        }
+	return selectedEntities;
+    }
+
+    SelectionBox selection;
+    void process_mouse_input(SDL_Event event, SelectionBox* selection) {
+          switch (event.type) {
+                case SDL_MOUSEBUTTONDOWN:
+                    if (event.button.button == SDL_BUTTON_LEFT) {
+                        //queue target for curently selected units
+			for(int i = 0; i < NUM_ENTITIES; i++) {
+			    if (!selectedEntities[i].isActive) {
+			        continue;
+			    }
+			    entities[i].target.x = event.button.x;
+			    entities[i].target.y = event.button.y;
+			    selectedEntities[i].isActive = false;
+			}
+                        selection->selecting = true;
+                        selection->box.x = event.button.x;
+                        selection->box.y = event.button.y;
+                        selection->box.w = 0;
+                        selection->box.h = 0;
+                     }
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                   if (event.button.button == SDL_BUTTON_LEFT) {
+                        selection->selecting = false;
+                        // Normalize the box dimensions
+                        if (selection->box.w < 0) {
+                            selection->box.x += selection->box.w;
+                            selection->box.w = -selection->box.w;
+                        }
+                        if (selection->box.h < 0) {
+                            selection->box.y += selection->box.h;
+                            selection->box.h = -selection->box.h;
+                        }
+                        // Find collisions to select units
+			getSelected(selection); 
+                   }
+                   break;
+                case SDL_MOUSEMOTION:
+                   if (selection->selecting) {
+                        selection->box.w = event.motion.x - selection->box.x;
+                        selection->box.h = event.motion.y - selection->box.y;
+                   }
+                   break;
+            } 
+    }
+    
+
     int counter = 0;
     int last_t = SDL_GetTicks()-100;
     int msec = 1;
     while (running) {
 	if (counter % 100 == 0 && msec > 0) {
-	  printf("FPS: %d\n", ((int) (100000.0/msec)));
+	  //printf("FPS: %d\n", ((int) (100000.0/msec)));
 	  msec = SDL_GetTicks() - last_t;
 	  last_t = SDL_GetTicks();
 	}
-	SDL_Delay(10);
 	counter = counter % 100;
 	counter += 1;
         SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = SDL_FALSE;
-            } else if (event.type == SDL_MOUSEBUTTONDOWN) {
-                // Send pugs to the mouse position
-		for (int i =0; i < 5; i++) {
-                    pugs[i].target.x = event.button.x - pugs[i].w / 2;
-                    pugs[i].target.y = event.button.y - pugs[i].h / 2;
-		}
-            }
+        while (SDL_PollEvent(&event)) { //process input into commands
+            process_mouse_input(event, &selection); 
         }
-	
-	for(int i =0; i<5; i++) {
-		move_entity(&pugs[i]);
+	if (counter % 100 == 0) {
+	     //process commands in queue
+	     for(int i =0; i< NUM_ENTITIES; i++) {
+	         if (!entities[i].isActive) {
+		    continue;
+		 }
+	          move_entity(&entities[i]);
+	     }
 	}
 	// Clear the screen
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // white background
@@ -105,9 +190,14 @@ int main(int argc, char *argv[]) {
 
 
 	
-        for (int i = 0; i < 5; i++) {
-            render_entity(renderer, &pugs[i]);
+        for (int i = 0; i < NUM_ENTITIES; i++) {
+	    if (!entities[i].isActive) {
+	        continue;
+	    }
+            render_entity(renderer, &entities[i]);
         }
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); 
+        SDL_RenderFillRect(renderer, &selection.box);
 
         // Update the screen
         SDL_RenderPresent(renderer);
