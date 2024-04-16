@@ -1,6 +1,6 @@
 #include <stdio.h> 
 #include <string.h>
-
+#include <SDL2/SDL.h>
 #include <sys/socket.h>
 #include <netdb.h>
 
@@ -53,6 +53,22 @@ int main(int argc, char *argv[]) {
     int port;
     sscanf(argv[1], "%d", &port);
     printf("starting on port %d\n", port);
-    server(port);
+    SDL_bool running = true;
+    int counter = 0; 
+    while (running) {
+       counter += 1 
+       server(port); //receive network input
+       //TODO: parse input
+	if (counter % 100 == 0) {
+	     counter = 0;
+	     //process commands in queue
+	     for(int i =0; i< NUM_ENTITIES; i++) {
+	         if (!entities[i].isActive) {
+		    continue;
+		 }
+	          move_entity(&entities[i]);
+	     }
+	}
+    }
     return 0;
 }
