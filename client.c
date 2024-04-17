@@ -163,15 +163,12 @@ int main(int argc, char *argv[]) {
         while (SDL_PollEvent(&event)) { //process input into commands
             process_mouse_input(event, &selection); 
         }
-	if (counter % 100 == 0) {
-	     //process commands in queue
-	     for(int i =0; i< NUM_ENTITIES; i++) {
-	         if (!entities[i].isActive) {
-		    continue;
-		 }
-	          move_entity(&entities[i]);
-	     }
-	}
+	
+        //TODO: send unit commands to server
+	//TODO: receive game state to render
+	//
+
+
 	// Clear the screen
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // white background
         SDL_RenderClear(renderer);
